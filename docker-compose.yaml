@@ -12,6 +12,9 @@ services:
         - ./config
       environment:
           ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+      volumes:
+          - ./hmayda:/hmayda
+          - ./conf-hadoop:/opt/hadoop/etc/hadoop    
    datanode:
       image: apache/hadoop:3
       container_name: datanode
@@ -35,12 +38,20 @@ services:
       command: ["yarn", "nodemanager"]
       env_file:
         - ./config
-   spark:
-      image: bde2020/spark-master:latest
-      container_name: spark
-      tty: true
-      volumes:
-        - /home/amine/hadoop:/hadoop-conf
+   spark-master:
+          image: bde2020/spark-master:latest
+          container_name: spark
+          ports:
+           - 8080:8080
+           - 7077:7077
+          volumes:
+            - ./hmayda:/hmayda
+            - ./conf-hadoop:/hadoop-conf
+          environment:
+            - HADOOP_CONF_DIR=/hadoop-conf
+          env_file:
+            - ./config
+
    flume:
       image: anchorfree/flume:latest
       container_name: flume
